@@ -11,7 +11,7 @@ dotenv.config();
 const { OPENAI_API_KEY } = process.env;
 
 //// schema stuff
-const typesArray = loadFilesSync(path.join("./", "*.graphql"));
+const typesArray = loadFilesSync(path.join("./src/", "*.graphql"));
 const typeDefs = mergeTypeDefs(typesArray);
 
 //// openai stuff

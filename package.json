@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/index.js"
   },
-  "author": "",
+  "author": "Zach Garrett",
   "license": "ISC",
   "dependencies": {
     "@graphql-tools/load-files": "^6.6.1",
