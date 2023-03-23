@@ -1,0 +1,11 @@
+type Query {
+  hello: String
+}
+
+type Mutation {
+  EditDocument(content: String!): ID!
+}
+
+# type Subscription {
+#   editedDocument(id: ID!): String
+# }
