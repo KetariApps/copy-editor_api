@@ -19,5 +19,8 @@
     "graphql": "^16.6.0",
     "graphql-subscriptions": "^2.0.0",
     "openai": "^3.2.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4"
   }
 }
