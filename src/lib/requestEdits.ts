@@ -5,6 +5,7 @@ import { Response } from "express";
 import parseGPTBuffer from "./helpers/parseGPTBuffer.js";
 import diff from "./helpers/diff.js";
 import buildSSEEvent from "./helpers/buildSSEEvent.js";
+import { EventEmitter } from "events";
 import processUserMessage from "./helpers/processUserMessage.js";
 
 export interface Suggestion {
@@ -16,7 +17,7 @@ export interface Suggestion {
 export default async function requestEdits(
   content: string,
   openai: OpenAIApi,
-  responseStream: Response
+  eventEmitter: EventEmitter
 ) {
   const { processed: processedContent, tokens: tokenizedContent } =
     processUserMessage(content);
@@ -79,9 +80,7 @@ export default async function requestEdits(
                   // send the completed suggestion back to the user
 
                   const event = buildSSEEvent(currentReplacement);
-                  responseStream.write(
-                    `event: edit\ndata: ${JSON.stringify(event)}\n\n`
-                  );
+                  eventEmitter.emit("message", JSON.stringify(event));
 
                   // reset currentReplacement
                   currentReplacement = [];
@@ -98,22 +97,20 @@ export default async function requestEdits(
         response.data.on("end", () => {
           if (currentReplacement.length > 0) {
             const event = buildSSEEvent(currentReplacement);
-            responseStream.write(
-              `event: edit\ndata: ${JSON.stringify(event)}\n\n`
-            );
+            eventEmitter.emit("message", JSON.stringify(event));
 
             // reset currentReplacement
             currentReplacement = [];
           }
 
-          // Stream ended, do any final processing here
-          // Close the SSE connection after sending all the edited chunks
-          responseStream.end();
+          // emit the done event
+          eventEmitter.emit("done");
         });
 
         // @ts-expect-error
         response.data.on("error", (error: Error) => {
           // Handle any stream errors
+          eventEmitter.emit("error", error);
         });
       });
   } catch (error) {
