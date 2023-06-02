@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { Configuration, OpenAIApi } from "openai";
 import * as dotenv from "dotenv";
 import requestEdits from "./lib/requestEdits.js";
+import cors from "cors";
 
 //// env stuff
 dotenv.config();
@@ -13,6 +14,7 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 const app = express();
+app.use(cors());
 
 // Enable parsing of request bodies
 app.use(express.json());
@@ -22,16 +24,13 @@ app.post("/sse", (req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", "https://localhost:3000");
 
   // Send initial event to establish SSE connection
   res.write("event: connected\n\n");
 
-  // Store the response object for later use
-  const userResponse = res;
-
   // Handle the request from the user
-  handleUserRequest(req, userResponse);
+  handleUserRequest(req, res);
 });
 
 // Handle user request and stream response

@@ -41,6 +41,7 @@ export default async function requestEdits(
 
       .then((response) => {
         const collectedResponse: number[] = [];
+        let currentIndex: number = 0;
         let currentReplacement: Suggestion[] = [];
 
         // Handle the response stream
@@ -56,8 +57,9 @@ export default async function requestEdits(
 
               const difference = diff(tokenizedContent, {
                 tokens,
-                index: collectedResponse.length - 1,
+                index: currentIndex,
               });
+              currentIndex += 1;
 
               if (difference !== false) {
                 // push the new difference to the currentSuggestion

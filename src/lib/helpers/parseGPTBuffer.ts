@@ -32,5 +32,9 @@ export default function parseGPTBuffer(buffer: Buffer) {
     ? JSON.parse(dataLine.substr(5).trim())
     : null;
 
+  console.log(
+    "content" in data.choices[0].delta && data.choices[0].delta.content
+  );
+
   return { type, data };
 }
