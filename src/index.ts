@@ -27,7 +27,7 @@ app.post("/sse", (req: Request, res: Response) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   // Send initial event to establish SSE connection
-  res.write("event: connected\n\n");
+  res.write("event: open\n\n");
 
   // Handle the request from the user
   handleUserRequest(req, res);

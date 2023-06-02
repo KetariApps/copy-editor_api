@@ -17,7 +17,7 @@ export default function buildSSEEvent(sequentialSuggestions: Suggestion[]) {
 
   // construct the event object
   const event = {
-    type: "suggestion",
+    type: "message",
     suggestion,
   };
   return event;
