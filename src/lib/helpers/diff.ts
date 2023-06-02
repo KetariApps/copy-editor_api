@@ -1,19 +1,18 @@
-import { decode } from "gpt-3-encoder";
 import { Suggestion } from "../requestEdits.js";
 
 export default function diff(
-  tokenizedContent: number[],
-  payload: { tokens: number[]; index: number }
+  originalContent: string,
+  payload: { suggestion: string; index: number }
 ): Suggestion | false {
-  const baseToken = tokenizedContent.slice(
+  const base = originalContent.slice(
     payload.index,
-    payload.index + payload.tokens.length
+    payload.index + payload.suggestion.length
   );
   return (
-    baseToken !== payload.tokens && {
-      originalSubstring: decode(baseToken),
+    base !== payload.suggestion && {
+      originalSubstring: base,
       index: payload.index,
-      replacement: decode(payload.tokens),
+      replacement: payload.suggestion,
     }
   );
 }

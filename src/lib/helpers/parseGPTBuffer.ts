@@ -1,3 +1,5 @@
+import getJSONString from "./getJSONString.js";
+
 type ChatCompletionStreamResponseDataDelta =
   | {
       role: "assistant";
@@ -23,18 +25,22 @@ export default function parseGPTBuffer(buffer: Buffer) {
   // Example: Assume the buffer contains JSON data
   const chunk = buffer.toString("utf8");
 
-  const lines = chunk.split("\n");
-  const eventLine = lines.find((line) => line.startsWith("event:"));
-  const dataLine = lines.find((line) => line.startsWith("data:"));
+  const data = chunk
+    // get the data lines
+    .split("data: ")
+    .filter((str) => str.trim() !== "")
+    // parse the json from the data lines
+    .map((str) => {
+      const jsonString = getJSONString(str);
+      if (jsonString == undefined) return undefined;
+      const data: ChatCompletionStreamResponseData = JSON.parse(jsonString);
+      return data;
+    })
+    // return only the data object which has content
+    .filter(
+      (data): data is ChatCompletionStreamResponseData =>
+        data !== undefined && "content" in data.choices[0].delta
+    )[0];
 
-  const type = eventLine ? eventLine.split(":")[1].trim() : null;
-  const data: ChatCompletionStreamResponseData = dataLine
-    ? JSON.parse(dataLine.substr(5).trim())
-    : null;
-
-  console.log(
-    "content" in data.choices[0].delta && data.choices[0].delta.content
-  );
-
-  return { type, data };
+  return data !== undefined ? data : undefined;
 }
