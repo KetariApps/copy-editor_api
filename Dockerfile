@@ -1,4 +1,4 @@
-FROM node:latest
+FROM amd64/node:latest
 ENV PORT=3000
 ENV OPENAI_API_KEY=test
 
