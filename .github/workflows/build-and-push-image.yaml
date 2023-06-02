@@ -2,7 +2,7 @@ name: docker-build-and-push_develop
 on:
   push:
     branches:
-      - 'develop'
+      - 'dev'
 jobs:
   docker:
     runs-on: ubuntu-latest
