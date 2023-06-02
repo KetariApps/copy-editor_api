@@ -24,7 +24,7 @@ app.post("/sse", (req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
-  res.setHeader("Access-Control-Allow-Origin", "https://localhost:3000");
+  res.setHeader("Access-Control-Allow-Origin", "*");
 
   // Send initial event to establish SSE connection
   res.write("event: connected\n\n");
