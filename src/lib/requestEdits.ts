@@ -1,31 +1,12 @@
-import { decode, encode } from "gpt-3-encoder";
+import { encode } from "gpt-3-encoder";
 import { systemFoundations } from "./prompts/sysFoundations.js";
 import { ChatCompletionRequestMessage, OpenAIApi } from "openai";
 import { Response } from "express";
 import parseGPTBuffer from "./helpers/parseGPTBuffer.js";
 import diff from "./helpers/diff.js";
 import buildSSEEvent from "./helpers/buildSSEEvent.js";
+import processUserMessage from "./helpers/processUserMessage.js";
 
-// do any necessary pre-processing of the document
-function processContent(content: string) {
-  // preprocess content
-  // check the tokens in the content
-  const tokens = encode(content);
-
-  // do something based on the length -- ie, split paragraphs, summarization, etc
-
-  // etc
-  const processed = content;
-
-  return { processed, tokens };
-}
-
-// concatenate the diff so that sequential changes and not-changes are single entities
-function concatDiff(diff: string) {
-  return diff;
-}
-
-// this is the "content" of the response to the user
 export interface Suggestion {
   index: number;
   originalSubstring: string;
@@ -38,7 +19,7 @@ export default async function requestEdits(
   responseStream: Response
 ) {
   const { processed: processedContent, tokens: tokenizedContent } =
-    processContent(content);
+    processUserMessage(content);
 
   // build the gpt request
   const messages: ChatCompletionRequestMessage[] = [

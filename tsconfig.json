@@ -17,5 +17,5 @@
     "outDir": "build",
     "preserveConstEnums": true
   },
-  "include": ["src/**/*", "index.ts"]
+  "include": ["src/**/*"]
 }

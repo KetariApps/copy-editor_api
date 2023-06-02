@@ -5,7 +5,7 @@ import requestEdits from "./lib/requestEdits.js";
 
 //// env stuff
 dotenv.config();
-const { OPENAI_API_KEY } = process.env;
+const { OPENAI_API_KEY, PORT } = process.env;
 //// openai stuff
 const configuration = new Configuration({
   apiKey: OPENAI_API_KEY,
@@ -45,6 +45,6 @@ async function handleUserRequest(req: Request, res: Response) {
 }
 
 // Start the server
-app.listen(3000, () => {
-  console.log("Server listening on port 3000");
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
 });
