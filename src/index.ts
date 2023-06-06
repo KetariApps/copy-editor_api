@@ -62,9 +62,20 @@ app.post("/edit", (req: Request, res: Response) => {
   const worker = new Worker("./build/workers/requestEdits.js", {
     workerData,
   });
+
   workers.set(streamId, worker);
   res.write(JSON.stringify({ streamId }), () => {
     res.end();
+  });
+  worker.on("message", (message: string) => {
+    if (message === "done") {
+      workers.delete(streamId);
+      res.end();
+    } else if (message === "error") {
+      console.error("Error from worker");
+    } else {
+      res.write(`data: ${message}\n\n`);
+    }
   });
 });
 
