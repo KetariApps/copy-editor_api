@@ -74,7 +74,8 @@ try {
             const suggestion = data.choices[0].delta.content;
 
             // Use to limit the diff-ing. When the gap between diffs is buffer or less, it will treat them as the same diff
-            let buffer = 2;
+            const bufferReset = 1;
+            let buffer = bufferReset;
 
             for (const character of suggestion) {
               collectedResponse.push(character);
@@ -91,7 +92,7 @@ try {
                 currentReplacement.push(difference);
 
                 // reset buffer
-                buffer = 2;
+                buffer = bufferReset;
               }
               // RETURN BRANCH
               // This branch handles the case where there is no difference in token at the position of the current index,
@@ -114,7 +115,7 @@ try {
                 // reset currentReplacement
                 currentReplacement = [];
                 // reset buffer
-                buffer = 2;
+                buffer = bufferReset;
               }
               // BUFFER BRANCH
               // If there is no proposed replacement and the diff is false, consume one buffer
