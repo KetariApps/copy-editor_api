@@ -73,6 +73,9 @@ try {
           if ("content" in data.choices[0].delta) {
             const suggestion = data.choices[0].delta.content;
 
+            // Use to limit the diff-ing. When the gap between diffs is buffer or less, it will treat them as the same diff
+            let buffer = 2;
+
             for (const character of suggestion) {
               collectedResponse.push(character);
 
@@ -87,18 +90,51 @@ try {
               if (difference !== false) {
                 // push the new difference to the currentSuggestion
                 currentReplacement.push(difference);
+
+                // reset buffer
+                buffer = 2;
               }
               // RETURN BRANCH
               // This branch handles the case where there is no difference in token at the position of the current index,
               // and there are currently staged suggestions. In this case, the api should send back the completed Suggestion.
-              else if (difference === false && currentReplacement.length > 0) {
+              else if (
+                difference === false &&
+                currentReplacement.length > 0 &&
+                buffer < 0
+              ) {
                 // send the completed suggestion back to the user
 
-                const event = buildSSEEvent(currentReplacement);
+                const event = buildSSEEvent(
+                  currentReplacement.slice(
+                    0,
+                    currentReplacement.length + buffer
+                  )
+                );
                 postMessage(JSON.stringify(event));
 
                 // reset currentReplacement
                 currentReplacement = [];
+                // reset buffer
+                buffer = 2;
+              }
+              // BUFFER BRANCH
+              // If there is no proposed replacement and the diff is false, consume one buffer
+              else if (
+                difference === false &&
+                currentReplacement.length === 0
+              ) {
+                buffer = buffer - 1;
+
+                // push the new difference to the currentSuggestion
+                const bufferSuggestion: Suggestion = {
+                  index: currentIndex,
+                  originalSubstring: processedContent.slice(
+                    currentIndex,
+                    currentIndex + 1
+                  ),
+                  replacement: character,
+                };
+                currentReplacement.push(bufferSuggestion);
               }
               // no action is necessary on any other event type
             }
