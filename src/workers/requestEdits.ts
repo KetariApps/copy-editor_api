@@ -119,10 +119,7 @@ try {
               }
               // BUFFER BRANCH
               // If there is no proposed replacement and the diff is false, consume one buffer
-              else if (
-                difference === false &&
-                currentReplacement.length === 0
-              ) {
+              else if (difference === false && currentReplacement.length > 0) {
                 buffer = buffer - 1;
 
                 // push the new difference to the currentSuggestion
