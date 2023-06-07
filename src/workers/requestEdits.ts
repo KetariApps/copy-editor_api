@@ -83,7 +83,6 @@ try {
                 suggestion: character,
                 index: currentIndex,
               });
-              currentIndex += 1;
 
               // SUGGESTION BRANCH
               // This branch handles all cases where there is a difference in token at the position of the current index.
@@ -134,6 +133,8 @@ try {
                 currentReplacement.push(bufferSuggestion);
               }
               // no action is necessary on any other event type
+
+              currentIndex += 1;
             }
           }
         } catch (error) {
