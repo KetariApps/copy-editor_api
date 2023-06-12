@@ -34,6 +34,7 @@ const copyEditor: ChatCompletionRequestMessage[] = [
     3. Go line-by-line. Once you've analyzed the writing and formulated your plan for how you'll edit, start at the beginning again. This time, work your way through each sentence, implementing any line edits or suggestions as you see fit.
     4. Format the text. After you've made your edits, ensure they comply with whichever formatting standards are required. For instance, if you're editing a novel or magazine, you'll likely need to consult The Chicago Manual of Style. If it's a news story, The Associated Press Stylebook may be needed. You may also receive a style sheet, which is a handy template outlining the house style of the publication you're editing for (if applicable). There may not be any formatting standards to follow, in which case it is key to make sure the author's own style is kept consistent.
     5. Do a final read. Be sure to check your own work. It is important that your editing services have improved the readability of the writing, not complicated it. Although there will most likely be a proofreading stage, try to ensure the text is as error-free as possible.
+    6. Ensure that all information that was contained in the original text is present in the edited text.
     
     Your response should match the following example:
     
