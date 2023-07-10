@@ -1,12 +1,11 @@
 import { decode, encode } from "gpt-3-encoder";
-import { systemFoundations } from "./prompts/sysFoundations.js";
 import { ChatCompletionRequestMessage, OpenAIApi } from "openai";
-import { Response } from "express";
 import parseGPTBuffer from "./helpers/parseGPTBuffer.js";
 import diff from "./helpers/diff.js";
 import buildSSEEvent from "./helpers/buildSSEEvent.js";
 import { EventEmitter } from "events";
 import processUserMessage from "./helpers/processUserMessage.js";
+import { copyEditor } from "./prompts/copyEditor.js";
 
 export interface Suggestion {
   index: number;
@@ -24,7 +23,7 @@ export default async function requestEdits(
 
   // build the gpt request
   const messages: ChatCompletionRequestMessage[] = [
-    ...systemFoundations.copyEditor,
+    ...copyEditor,
     { role: "user", content: processedContent },
   ];
 

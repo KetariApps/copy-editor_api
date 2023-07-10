@@ -2,10 +2,10 @@ import { workerData, parentPort } from "worker_threads";
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
 import * as dotenv from "dotenv";
 import processUserMessage from "../lib/helpers/processUserMessage.js";
-import { systemFoundations } from "../lib/prompts/sysFoundations.js";
 import parseGPTBuffer from "../lib/helpers/parseGPTBuffer.js";
 import diff from "../lib/helpers/diff.js";
 import buildSSEEvent from "../lib/helpers/buildSSEEvent.js";
+import { copyEditor } from "../lib/prompts/copyEditor.js";
 
 function postMessage(message: string) {
   if (parentPort) {
@@ -42,10 +42,13 @@ const { processed: processedContent, tokens: tokenizedContent } =
 
 // build the gpt request
 const messages: ChatCompletionRequestMessage[] = [
-  ...systemFoundations.copyEditor,
+  ...copyEditor,
   { role: "user", content: processedContent },
 ];
 
+// this is used in conjunction with the number of tokens in the original message to tune the max tokens in the response.
+// 0.1 means 10% more tokens than the request are allowed.
+const upperBuffer = 0.1;
 // get the response
 try {
   await openai
@@ -54,6 +57,7 @@ try {
         model: "gpt-4",
         messages,
         stream: true,
+        max_tokens: Math.ceil(tokenizedContent.length * (1 + upperBuffer)),
       },
       { responseType: "stream" }
     )
@@ -110,6 +114,7 @@ try {
                     currentReplacement.length + buffer
                   )
                 );
+                console.log(event);
                 postMessage(JSON.stringify(event));
 
                 // reset currentReplacement
