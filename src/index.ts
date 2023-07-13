@@ -10,7 +10,15 @@ dotenv.config();
 const { PORT } = process.env;
 
 const app = express();
-app.use(cors());
+
+// configure cors
+const corsConfig = {
+  origin: "*",
+  methods: "GET, POST, PUT, DELETE",
+  allowedHeaders: "Content-Type, Authorization",
+};
+app.use(cors(corsConfig));
+app.options("*", cors(corsConfig)); // include before other routes
 
 // Enable parsing of request bodies
 app.use(express.json());
