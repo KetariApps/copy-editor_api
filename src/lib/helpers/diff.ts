@@ -1,4 +1,4 @@
-import { Suggestion } from "../requestEdits.js";
+import { Suggestion } from "../../workers/requestEdits.js";
 
 export default function diff(
   originalContent: string,

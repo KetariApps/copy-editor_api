@@ -114,7 +114,6 @@ try {
                     currentReplacement.length + buffer
                   )
                 );
-                console.log(event);
                 postMessage(JSON.stringify(event));
 
                 // reset currentReplacement
@@ -142,6 +141,8 @@ try {
 
               currentIndex += 1;
             }
+          } else {
+            return undefined;
           }
         } catch (error) {
           console.error("Error processing the chunk:", error);

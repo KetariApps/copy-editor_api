@@ -25,22 +25,28 @@ export default function parseGPTBuffer(buffer: Buffer) {
   // Example: Assume the buffer contains JSON data
   const chunk = buffer.toString("utf8");
 
-  const data = chunk
-    // get the data lines
+  const dataLines = chunk
     .split("data: ")
-    .filter((str) => str.trim() !== "")
-    // parse the json from the data lines
-    .map((str) => {
-      const jsonString = getJSONString(str);
-      if (jsonString == undefined) return undefined;
-      const data: ChatCompletionStreamResponseData = JSON.parse(jsonString);
+    .filter((line) => line !== null && line.length > 0);
+
+  const streamResponse = dataLines
+    .map((dataLine) => {
+      const data: ChatCompletionStreamResponseData | undefined =
+        getJSONString(dataLine);
+      if (
+        data === undefined ||
+        !("content" in data.choices[0].delta) ||
+        data.choices[0].delta.content == ""
+      )
+        return undefined;
       return data;
     })
-    // return only the data object which has content
     .filter(
-      (data): data is ChatCompletionStreamResponseData =>
-        data !== undefined && "content" in data.choices[0].delta
-    )[0];
+      (
+        bufferJSONOrUndefined
+      ): bufferJSONOrUndefined is ChatCompletionStreamResponseData =>
+        bufferJSONOrUndefined !== undefined
+    );
 
-  return data !== undefined ? data : undefined;
+  return streamResponse[0];
 }
