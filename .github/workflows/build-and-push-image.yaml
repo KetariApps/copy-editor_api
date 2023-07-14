@@ -2,11 +2,8 @@ name: docker-build-and-push_develop
 on:
   push:
     branches:
-<<<<<<< HEAD
       - 'develop'
-=======
       - 'dev'
->>>>>>> dev
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -30,7 +27,3 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/copy-editor_api:develop
-<<<<<<< HEAD
-=======
-
->>>>>>> dev
