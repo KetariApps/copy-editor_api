@@ -8,8 +8,14 @@ export default function processUserMessage(content: string) {
 
   // do something based on the length -- ie, split paragraphs, summarization, etc
 
+  // this is used in conjunction with the number of tokens in the original message to tune the max tokens in the response.
+  // 0.1 means 10% more tokens than the request are allowed.
+  const upperBuffer = 0.1;
+
+  const max_tokens = Math.ceil(tokens.length * (1 + upperBuffer));
+
   // etc
   const processed = content;
 
-  return { processed, tokens };
+  return { processed, tokens, max_tokens };
 }

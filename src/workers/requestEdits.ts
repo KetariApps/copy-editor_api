@@ -6,6 +6,7 @@ import parseGPTBuffer from "../lib/helpers/parseGPTBuffer.js";
 import diff from "../lib/helpers/diff.js";
 import buildSSEEvent from "../lib/helpers/buildSSEEvent.js";
 import { copyEditor } from "../lib/prompts/copyEditor.js";
+import requestEdits from "../lib/prompts/requestEdits.js";
 
 function postMessage(message: string) {
   if (parentPort) {
@@ -25,7 +26,6 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 export interface RequestEditsWorkerData {
-  streamId: string;
   content: string;
 }
 
@@ -36,28 +36,27 @@ export interface Suggestion {
 }
 
 // Retrieve the processId from workerData
-const { streamId, content }: RequestEditsWorkerData = workerData;
-const { processed: processedContent, tokens: tokenizedContent } =
-  processUserMessage(content);
+const { content }: RequestEditsWorkerData = workerData;
 
-// build the gpt request
-const messages: ChatCompletionRequestMessage[] = [
-  ...copyEditor,
-  { role: "user", content: processedContent },
-];
-
-// this is used in conjunction with the number of tokens in the original message to tune the max tokens in the response.
-// 0.1 means 10% more tokens than the request are allowed.
-const upperBuffer = 0.1;
 // get the response
 try {
+  const {
+    processed: processedContent,
+    tokens,
+    max_tokens,
+  } = processUserMessage(content);
+
+  // build the gpt request
+  const messages: ChatCompletionRequestMessage[] = [
+    ...copyEditor,
+    requestEdits(processedContent, max_tokens),
+  ];
   await openai
     .createChatCompletion(
       {
         model: "gpt-4",
         messages,
         stream: true,
-        max_tokens: Math.ceil(tokenizedContent.length * (1 + upperBuffer)),
       },
       { responseType: "stream" }
     )
@@ -80,7 +79,7 @@ try {
             // Use to limit the diff-ing. When the gap between diffs is buffer or less, it will treat them as the same diff
             const bufferReset = 1;
             let buffer = bufferReset;
-
+            // console.log(suggestion);
             for (const character of suggestion) {
               collectedResponse.push(character);
 
@@ -171,5 +170,5 @@ try {
     });
 } catch (error) {
   // Handle API request errors
-  console.error("An error occurred during OpenAI request", error);
+  console.error("An error occurred during OpenAI request");
 }

@@ -35,10 +35,6 @@ app.get("/sse", (req: Request, res: Response) => {
     return;
   }
 
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-
   worker.on("message", (message: string) => {
     if (message === "done") {
       workers.delete(streamId);
@@ -54,14 +50,9 @@ app.get("/sse", (req: Request, res: Response) => {
 // edit endpoint
 // request edits
 app.post("/edit", (req: Request, res: Response) => {
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-
   const content = req.body.message;
   const streamId = uuid();
   const workerData: RequestEditsWorkerData = {
-    streamId,
     content,
   };
   const worker = new Worker("./build/workers/requestEdits.js", {

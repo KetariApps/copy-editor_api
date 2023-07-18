@@ -1,4 +1,7 @@
-import { ChatCompletionRequestMessage } from "openai";
+import {
+  ChatCompletionRequestMessage,
+  ChatCompletionRequestMessageRoleEnum,
+} from "openai";
 
 function getCurrentDate() {
   const today = new Date();
@@ -12,7 +15,7 @@ function getCurrentDate() {
 
 export const global: ChatCompletionRequestMessage[] = [
   {
-    role: "system",
+    role: ChatCompletionRequestMessageRoleEnum.System,
     content: `The current date is ${getCurrentDate()} and you were last updated in September 2021.
     ---
     Hello ChatGPT, please follow all instructions, precisely.`,
