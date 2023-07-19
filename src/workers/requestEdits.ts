@@ -38,7 +38,6 @@ export interface Suggestion {
 // Retrieve the processId from workerData
 const { content }: RequestEditsWorkerData = workerData;
 
-// get the response
 try {
   const {
     processed: processedContent,
@@ -51,6 +50,7 @@ try {
     ...copyEditor,
     requestEdits(processedContent, max_tokens),
   ];
+
   await openai
     .createChatCompletion(
       {
@@ -60,6 +60,7 @@ try {
       },
       { responseType: "stream" }
     )
+    .catch((error) => console.error(error))
 
     .then((response) => {
       const collectedResponse: string[] = [];
@@ -171,4 +172,5 @@ try {
 } catch (error) {
   // Handle API request errors
   console.error("An error occurred during OpenAI request");
+  // console.log(error);
 }
