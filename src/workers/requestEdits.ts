@@ -76,6 +76,7 @@ try {
           if (data === undefined) return;
           if ("content" in data.choices[0].delta) {
             const suggestion = data.choices[0].delta.content;
+            console.log(suggestion);
 
             // Use to limit the diff-ing. When the gap between diffs is buffer or less, it will treat them as the same diff
             const bufferReset = 1;
