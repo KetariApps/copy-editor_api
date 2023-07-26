@@ -23,7 +23,7 @@ export const editText: ChatCompletionRequestMessage = {
 };
 export const preserveFootnotes = {
   role: ChatCompletionRequestMessageRoleEnum.System,
-  content: `Footnotes will be referenced in the text by a uid which references a matching footnote body. When editing the text, ensure the reference uid is in the same semantic position, and in the same format, in the edited text.`,
+  content: `Footnotes will be referenced in the text by a uid. When editing the text, ensure the reference uid is in the same semantic position in the edited text.`,
 };
 export const copyEditorMessages: ChatCompletionRequestMessage[] = [
   ...global,

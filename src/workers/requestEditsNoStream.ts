@@ -18,11 +18,11 @@ interface Message {
   type: "suggestion";
   suggestion: string;
   insertionIndex: number;
+  footnote?: Footnote;
 }
 const sendMessageToUser = (message: Message) => {
   if (parentPort) {
-    // parentPort.postMessage(message);
-    console.log(message);
+    parentPort.postMessage(message);
   } else {
     // `parentPort` is null, handle this case accordingly
     console.error("parentPort is not available");
@@ -63,6 +63,7 @@ try {
     tokens,
     max_tokens,
   } = processUserMessage(content);
+  console.log(processedContent);
 
   // build the gpt request
   const messages: ChatCompletionRequestMessage[] = [
@@ -73,10 +74,11 @@ try {
   await openai
     .createChatCompletion({
       model: "gpt-4",
-      messages:
-        footnotes !== undefined
-          ? [...messages, referenceFootnotes(footnotes)]
-          : messages,
+      messages,
+      // messages:
+      //   footnotes !== undefined
+      //     ? [...messages, referenceFootnotes(footnotes)]
+      //     : messages,
       stream: false,
     })
     .catch((error) => console.error(error))
@@ -85,10 +87,6 @@ try {
       if (response) {
         const suggestion = response.data.choices[0].message?.content;
         if (suggestion === undefined) return;
-
-        console.log(suggestion);
-
-        let sequentialChanges: { insertionIndex: number; token: number }[] = [];
 
         if (footnotes !== undefined) {
           // find the position of the footnotes in the content
@@ -103,14 +101,17 @@ try {
             footnotePositions.map(({ newIndex }) => newIndex)
           );
 
-          const footnoteRefs = footnotes.map(({ id }) => id);
+          const footnoteRefs = footnotes.map(({ id }) => `|${id}|`);
           const plaintextOriginal = removeSubstrings(content, footnoteRefs);
           // console.log(plaintextOriginal);
           const encodedOriginal = encode(plaintextOriginal);
           // console.log("original", encodedOriginal);
-          const encodedSuggestions = splitSuggestion.map((suggestion) =>
-            encode(removeSubstrings(suggestion, footnoteRefs))
-          );
+          const encodedSuggestions = splitSuggestion.map((suggestion) => {
+            const parsedPlaintext = removeSubstrings(suggestion, footnoteRefs);
+            console.log("suggestion with footnotes", suggestion);
+            console.log("parsed suggestion", parsedPlaintext);
+            return encode(parsedPlaintext);
+          });
 
           let suggestionOffset = 0;
           for (
@@ -118,6 +119,8 @@ try {
             suggestionIndex < encodedSuggestions.length;
             suggestionIndex++
           ) {
+            let sequentialChanges: { insertionIndex: number; token: number }[] =
+              [];
             const encodedSuggestion = encodedSuggestions[suggestionIndex];
             // console.log("suggestion", encodedSuggestion);
             // console.log("offset", suggestionOffset);
@@ -140,17 +143,15 @@ try {
                   insertionIndex: comparisonIndex,
                   token: newToken,
                 });
-                if (
-                  suggestionIndex === encodedSuggestions.length - 1 &&
-                  tokenIndex === encodedSuggestion.length - 1
-                ) {
-                  // this is the last token, return to user
+                if (tokenIndex === encodedSuggestion.length - 1) {
+                  // this is the last token of the suggestion, return to user
                   sendMessageToUser({
                     type: "suggestion",
                     suggestion: decode(
                       sequentialChanges.map(({ token }) => token)
                     ),
                     insertionIndex: sequentialChanges[0].insertionIndex,
+                    footnote: footnotes[suggestionIndex],
                   });
                 }
               } else {

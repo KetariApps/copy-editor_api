@@ -43,8 +43,8 @@ app.get("/sse", (req: Request, res: Response) => {
       } else if (message === "error") {
         console.error("Error from worker");
       } else {
-        res.write(`data: ${message}\n\n`);
-        // console.log(message);
+        // res.write(`data: ${message}\n\n`);
+        console.log(message);
       }
     });
   } catch (error) {
