@@ -5,8 +5,9 @@ import processUserMessage from "../lib/helpers/processUserMessage.js";
 import parseGPTBuffer from "../lib/helpers/parseGPTBuffer.js";
 import diff from "../lib/helpers/diff.js";
 import buildSSEEvent from "../lib/helpers/buildSSEEvent.js";
-import { copyEditor } from "../lib/prompts/copyEditor.js";
+import { copyEditorMessages } from "../lib/prompts/copyEditor.js";
 import requestEdits from "../lib/prompts/requestEdits.js";
+import referenceFootnotes from "../lib/prompts/referenceFootnotes.js";
 
 function postMessage(message: string) {
   if (parentPort) {
@@ -25,8 +26,15 @@ const configuration = new Configuration({
   apiKey: OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
+
+export interface Footnote {
+  offset: number;
+  body: string;
+  id: string;
+}
 export interface RequestEditsWorkerData {
   content: string;
+  footnotes?: Footnote[];
 }
 
 export interface Suggestion {
@@ -36,7 +44,7 @@ export interface Suggestion {
 }
 
 // Retrieve the processId from workerData
-const { content }: RequestEditsWorkerData = workerData;
+const { content, footnotes }: RequestEditsWorkerData = workerData;
 
 try {
   const {
@@ -47,7 +55,7 @@ try {
 
   // build the gpt request
   const messages: ChatCompletionRequestMessage[] = [
-    ...copyEditor,
+    ...copyEditorMessages,
     requestEdits(processedContent, max_tokens),
   ];
 
@@ -55,7 +63,10 @@ try {
     .createChatCompletion(
       {
         model: "gpt-4",
-        messages,
+        messages:
+          footnotes !== undefined
+            ? [...messages, referenceFootnotes(footnotes)]
+            : messages,
         stream: true,
       },
       { responseType: "stream" }
