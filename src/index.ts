@@ -43,8 +43,7 @@ app.get("/sse", (req: Request, res: Response) => {
       } else if (message === "error") {
         console.error("Error from worker");
       } else {
-        // res.write(`data: ${message}\n\n`);
-        console.log(message);
+        res.write(`data: ${message}\n\n`);
       }
     });
   } catch (error) {
@@ -56,12 +55,9 @@ app.get("/sse", (req: Request, res: Response) => {
 // request edits
 app.post("/edit", (req: Request, res: Response) => {
   try {
-    const { content, footnotes } = req.body;
+    const workerData = req.body as RequestEditsWorkerData;
     const streamId = uuid();
-    const workerData: RequestEditsWorkerData = {
-      content,
-      footnotes,
-    };
+    console.log("message from user:\n\n", workerData);
     const worker = new Worker("./build/workers/requestEditsNoStream.js", {
       workerData,
     });

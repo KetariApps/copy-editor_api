@@ -2,25 +2,35 @@ import { workerData, parentPort } from "worker_threads";
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
 import * as dotenv from "dotenv";
 import processUserMessage from "../lib/helpers/processUserMessage.js";
-import parseGPTBuffer from "../lib/helpers/parseGPTBuffer.js";
-import diff from "../lib/helpers/diff.js";
-import buildSSEEvent from "../lib/helpers/buildSSEEvent.js";
 import { copyEditorMessages } from "../lib/prompts/copyEditor.js";
 import requestEdits from "../lib/prompts/requestEdits.js";
-import referenceFootnotes from "../lib/prompts/referenceFootnotes.js";
-import splitStringOnTokens from "../lib/helpers/splitStringOnTokens.js";
 import { decode, encode } from "gpt-3-encoder";
 import findSubstringIndices from "../lib/helpers/findSubstringIndicies.js";
 import { splitStringAtPositions } from "../lib/helpers/splitStringAtPositions.js";
 import removeSubstrings from "../lib/helpers/removeSubstrings.js";
 
-interface Message {
+export interface Footnote {
+  offset: number;
+  body: string;
+  id: string;
+}
+export interface Message {
   type: "suggestion";
   suggestion: string;
+  originalSubstring: string;
   insertionIndex: number;
-  footnote?: Footnote;
+  endingFootnote?: Footnote;
 }
-const sendMessageToUser = (message: Message) => {
+export interface RequestEditsWorkerData {
+  content: string;
+  footnotes?: Footnote[];
+}
+export interface SequentialChange {
+  comparisonIndex: number;
+  token: number;
+}
+
+const sendMessageToUser = (message: string) => {
   if (parentPort) {
     parentPort.postMessage(message);
   } else {
@@ -38,22 +48,6 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-export interface Footnote {
-  offset: number;
-  body: string;
-  id: string;
-}
-export interface RequestEditsWorkerData {
-  content: string;
-  footnotes?: Footnote[];
-}
-
-export interface Suggestion {
-  index: number;
-  originalToken: string;
-  replacement: string;
-}
-
 // Retrieve the processId from workerData
 const { content, footnotes }: RequestEditsWorkerData = workerData;
 
@@ -63,7 +57,6 @@ try {
     tokens,
     max_tokens,
   } = processUserMessage(content);
-  console.log(processedContent);
 
   // build the gpt request
   const messages: ChatCompletionRequestMessage[] = [
@@ -91,27 +84,24 @@ try {
         if (footnotes !== undefined) {
           // find the position of the footnotes in the content
           const footnotePositions = footnotes.map((footnote) => {
-            const originalIndex = findSubstringIndices(content, footnote.id)[0];
-            const newIndex = findSubstringIndices(suggestion, footnote.id)[0];
+            const ref = `|${footnote.id}|`;
+            const originalIndex = findSubstringIndices(content, ref)[0];
+            const newIndex = findSubstringIndices(suggestion, ref)[0];
             return { ...footnote, newIndex, originalIndex };
           });
 
-          const splitSuggestion = splitStringAtPositions(
+          const footnoteRefs = footnotes.map(({ id }) => `|${id}|`);
+
+          const encodedSuggestions = splitStringAtPositions(
             suggestion,
             footnotePositions.map(({ newIndex }) => newIndex)
-          );
-
-          const footnoteRefs = footnotes.map(({ id }) => `|${id}|`);
-          const plaintextOriginal = removeSubstrings(content, footnoteRefs);
-          // console.log(plaintextOriginal);
-          const encodedOriginal = encode(plaintextOriginal);
-          // console.log("original", encodedOriginal);
-          const encodedSuggestions = splitSuggestion.map((suggestion) => {
-            const parsedPlaintext = removeSubstrings(suggestion, footnoteRefs);
-            console.log("suggestion with footnotes", suggestion);
-            console.log("parsed suggestion", parsedPlaintext);
+          ).map((substring) => {
+            const parsedPlaintext = removeSubstrings(substring, footnoteRefs);
             return encode(parsedPlaintext);
           });
+
+          const plaintextOriginal = removeSubstrings(content, footnoteRefs);
+          const encodedOriginal = encode(plaintextOriginal);
 
           let suggestionOffset = 0;
           for (
@@ -119,11 +109,8 @@ try {
             suggestionIndex < encodedSuggestions.length;
             suggestionIndex++
           ) {
-            let sequentialChanges: { insertionIndex: number; token: number }[] =
-              [];
+            let sequentialChanges: SequentialChange[] = [];
             const encodedSuggestion = encodedSuggestions[suggestionIndex];
-            // console.log("suggestion", encodedSuggestion);
-            // console.log("offset", suggestionOffset);
             for (
               let tokenIndex = 0;
               tokenIndex < encodedSuggestion.length;
@@ -135,35 +122,63 @@ try {
               const isChange =
                 newToken !== originalToken ||
                 typeof originalToken === "undefined";
-              // console.log(suggestionIndex, suggestionOffset, tokenIndex);
-              // console.log(originalToken, newToken, isChange);
 
               if (isChange) {
                 sequentialChanges.push({
-                  insertionIndex: comparisonIndex,
+                  comparisonIndex,
                   token: newToken,
                 });
                 if (tokenIndex === encodedSuggestion.length - 1) {
                   // this is the last token of the suggestion, return to user
-                  sendMessageToUser({
+                  const endOfSliceIndex =
+                    suggestionIndex === encodedSuggestions.length - 1
+                      ? Math.max(comparisonIndex, encodedOriginal.length - 1)
+                      : comparisonIndex;
+                  const userMessage: Message = {
                     type: "suggestion",
                     suggestion: decode(
                       sequentialChanges.map(({ token }) => token)
                     ),
-                    insertionIndex: sequentialChanges[0].insertionIndex,
-                    footnote: footnotes[suggestionIndex],
-                  });
+                    originalSubstring: decode(
+                      encodedOriginal.slice(
+                        sequentialChanges[0].comparisonIndex,
+                        endOfSliceIndex
+                      )
+                    ),
+                    insertionIndex: decode(
+                      encodedOriginal.slice(
+                        0,
+                        sequentialChanges[0].comparisonIndex
+                      )
+                    ).length,
+                    endingFootnote: footnotes[suggestionIndex],
+                  };
+                  console.log("Suggestion to user:\n\n", userMessage);
+                  sendMessageToUser(JSON.stringify(userMessage));
                 }
               } else {
                 if (sequentialChanges.length > 0) {
                   // collect the changes and send them to the user
-                  sendMessageToUser({
+                  const userMessage: Message = {
                     type: "suggestion",
                     suggestion: decode(
                       sequentialChanges.map(({ token }) => token)
                     ),
-                    insertionIndex: sequentialChanges[0].insertionIndex,
-                  });
+                    originalSubstring: decode(
+                      encodedOriginal.slice(
+                        sequentialChanges[0].comparisonIndex,
+                        comparisonIndex
+                      )
+                    ),
+                    insertionIndex: decode(
+                      encodedOriginal.slice(
+                        0,
+                        sequentialChanges[0].comparisonIndex
+                      )
+                    ).length,
+                  };
+                  console.log("Suggestion to user:\n\n", userMessage);
+                  sendMessageToUser(JSON.stringify(userMessage));
                 } else {
                 }
                 // reset sequentialChanges
@@ -171,11 +186,15 @@ try {
               }
             }
 
-            suggestionOffset = suggestionOffset + encodedSuggestion.length;
+            suggestionOffset = suggestionOffset + encodedSuggestion.length - 1;
           }
         } else {
+          // handle the case of simple text where there are no footnotes in the user's request
         }
       }
+
+      // emit the done event
+      sendMessageToUser("done");
     });
 } catch (error) {
   // Handle API request errors
