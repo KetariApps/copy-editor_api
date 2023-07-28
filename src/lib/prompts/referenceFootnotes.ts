@@ -2,7 +2,7 @@ import {
   ChatCompletionRequestMessage,
   ChatCompletionRequestMessageRoleEnum,
 } from "openai";
-import { Footnote } from "../../workers/requestEdits.js";
+import type { Footnote } from "../../workers/lib/types.d.ts";
 
 export default function referenceFootnotes(footnotes: Footnote[]) {
   const footnoteLibrary = footnotes.map(({ body, id }) => `${id}:\n\n${body}`);

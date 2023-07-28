@@ -1,10 +1,10 @@
 import { encode } from "gpt-3-encoder";
 
 // do any necessary pre-processing of the document
-export default function processUserMessage(content: string) {
+export default function processOriginalText(originalText: string) {
   // preprocess content
   // check the tokens in the content
-  const tokens = encode(content);
+  const tokens = encode(originalText);
 
   // do something based on the length -- ie, split paragraphs, summarization, etc
 
@@ -15,7 +15,7 @@ export default function processUserMessage(content: string) {
   const max_tokens = Math.ceil(tokens.length * (1 + upperBuffer));
 
   // etc
-  const processed = content;
+  const processedOriginalText = originalText;
 
-  return { processed, tokens, max_tokens };
+  return { processedOriginalText, tokens, max_tokens };
 }

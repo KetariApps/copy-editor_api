@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 import { Worker } from "worker_threads";
 import { v4 as uuid } from "uuid";
-import { RequestEditsWorkerData } from "./workers/requestEdits.js";
+import type { RequestEditsWorkerData } from "./workers/lib/types.d.ts";
 
 //// env stuff
 dotenv.config();
@@ -43,6 +43,7 @@ app.get("/sse", (req: Request, res: Response) => {
       } else if (message === "error") {
         console.error("Error from worker");
       } else {
+        console.log(JSON.stringify({ streamId, ...JSON.parse(message) }));
         res.write(`data: ${message}\n\n`);
       }
     });
@@ -57,7 +58,9 @@ app.post("/edit", (req: Request, res: Response) => {
   try {
     const workerData = req.body as RequestEditsWorkerData;
     const streamId = uuid();
-    console.log("message from user:\n\n", workerData);
+    console.log(
+      JSON.stringify({ type: "initialization", streamId, workerData })
+    );
     const worker = new Worker("./build/workers/requestEditsNoStream.js", {
       workerData,
     });
