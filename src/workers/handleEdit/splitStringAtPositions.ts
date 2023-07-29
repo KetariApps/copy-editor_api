@@ -1,4 +1,7 @@
-export function splitStringAtPositions(str: string, positions: number[]) {
+export default function splitStringAtPositions(
+  str: string,
+  positions: number[]
+) {
   // Sort the positions array in ascending order
   positions.sort((a, b) => a - b);
 

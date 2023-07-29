@@ -1,6 +1,7 @@
 import { parentPort } from "worker_threads";
+import { DoneMessage, WorkerMessage } from "./types.js";
 
-const sendMessageToUser = (message: string) => {
+const sendMessageToMainProcess = (message: WorkerMessage | DoneMessage) => {
   if (parentPort) {
     parentPort.postMessage(message);
   } else {
@@ -9,4 +10,4 @@ const sendMessageToUser = (message: string) => {
   }
 };
 
-export default sendMessageToUser;
+export default sendMessageToMainProcess;

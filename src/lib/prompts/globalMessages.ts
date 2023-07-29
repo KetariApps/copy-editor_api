@@ -13,7 +13,7 @@ function getCurrentDate() {
   return dateStr;
 }
 
-export const global: ChatCompletionRequestMessage[] = [
+const globalMessages: ChatCompletionRequestMessage[] = [
   {
     role: ChatCompletionRequestMessageRoleEnum.System,
     content: `The current date is ${getCurrentDate()} and you were last updated in September 2021.
@@ -21,3 +21,4 @@ export const global: ChatCompletionRequestMessage[] = [
     Hello ChatGPT, please follow all instructions, precisely.`,
   },
 ];
+export default globalMessages;
