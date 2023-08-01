@@ -14,7 +14,8 @@ const editTextMessage: ChatCompletionRequestMessage = {
   
   The edited text clearly conveys the author's intended message.
   The edited text retains all essential information from the original text.
-  The edited text removes unnecessary verbosity while staying consistent to the author's voice.
+  The edited text remains consistent to the author's voice.
+  The edited text is as similar as possible to the original.
 
   Example:
   
