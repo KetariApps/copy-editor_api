@@ -28,7 +28,11 @@ export interface EditRequest {
   footnotes: Footnote[];
   shouldGenerateComments: boolean;
 }
-export type PartialMessage = SuggestionMessage | CommentMessage | EditRequest;
+export type PartialMessage =
+  | SuggestionMessage
+  | CommentMessage
+  | EditRequest
+  | EditResponseMessage;
 
 export type StreamMessage =
   | EditResponseMessage

@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 import { Worker } from "worker_threads";
 import { v4 as uuid } from "uuid";
-import { DoneMessage, WorkerMessage } from "./workers/lib/types.js";
+import { DoneMessage } from "./workers/lib/types.js";
 import buildSSEResponse from "./lib/buildSSEResponse.js";
 import {
   CommentMessage,
@@ -19,7 +19,6 @@ import {
   EditRequest,
   StreamMap,
   StreamMessage,
-  StreamStatus,
   WorkerMap,
   WorkerRole,
 } from "./lib/types.js";
@@ -60,6 +59,7 @@ app.get("/sse", (req: Request, res: Response) => {
         const message = chunk as StreamMessage;
 
         if (message.type === "edit") {
+          console.log(buildSSEResponse(message));
           if (message.shouldGenerateComments === true) {
             anticipateComments = true;
             const generateCommentsWorkerId = uuid();
