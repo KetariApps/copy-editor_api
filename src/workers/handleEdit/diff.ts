@@ -38,10 +38,12 @@ const diff = (
             suggestionIndex === encodedEditedVersion.length - 1
               ? Math.max(comparisonIndex, encodedOriginalVersion.length - 1)
               : comparisonIndex;
+              
           const endingFootnote =
             typeof footnotes === "undefined"
               ? undefined
               : footnotes[suggestionIndex];
+
           const userMessage: SuggestionMessage = {
             type: "suggestion",
             suggestion: decode(sequentialChanges.map(({ token }) => token)),

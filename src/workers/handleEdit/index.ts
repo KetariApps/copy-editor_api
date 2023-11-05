@@ -3,7 +3,6 @@ import { encode } from "gpt-3-encoder";
 import findSubstringIndices from "./findSubstringIndicies.js";
 import splitStringAtPositions from "./splitStringAtPositions.js";
 import removeSubstrings from "./removeSubstrings.js";
-import diffSuggestion from "./diff.js";
 import sendMessageToMainProcess from "../lib/sendMessageToMainProcess.js";
 import { HandleEditWorkerData } from "./types.js";
 import diff from "./diff.js";
@@ -46,7 +45,7 @@ if (footnotes !== undefined) {
 
   const encodedSuggestion = encode(editedVersion);
   const encodedOriginal = encode(originalVersion);
-  diffSuggestion(encodedOriginal, [encodedSuggestion], footnotes, (message) =>
+  diff(encodedOriginal, [encodedSuggestion], undefined, (message) =>
     sendMessageToMainProcess(message)
   );
 }

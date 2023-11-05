@@ -5,7 +5,7 @@ export interface SuggestionMessage {
   suggestion: string;
   originalSubstring: string;
   insertionIndex: number;
-  endingFootnote?: Footnote;
+  endingFootnote?: Anchor;
 }
 export interface SequentialChange {
   comparisonIndex: number;
@@ -14,6 +14,6 @@ export interface SequentialChange {
 export interface HandleEditWorkerData {
   originalVersion: string;
   editedVersion: string;
-  footnotes?: Footnote[] | undefined;
+  footnotes?: Anchor[] | undefined;
   workerId: string;
 }
