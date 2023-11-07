@@ -5,7 +5,7 @@ import splitStringAtPositions from "./splitStringAtPositions.js";
 import removeSubstrings from "./removeSubstrings.js";
 import sendMessageToMainProcess from "../lib/sendMessageToMainProcess.js";
 import diff from "./diff.js";
-import { HandleEditWorkerData, LevensteinDiff, SuggestionWithAnchor, TokenizedSuggestionWithAnchor } from "./types.js";
+import { HandleEditWorkerData, LevensteinDiff, SuggestionMessage, SuggestionWithAnchor, TokenizedSuggestionWithAnchor } from "./types.js";
 
 const {
   originalVersion,
@@ -18,19 +18,19 @@ const {
  * 1.a
  * Get the set of minimal changes required to transform the original version to the edited version
  */
- const changeSequence: LevensteinDiff = levensteinDiff(originalVersion, editedVersion)
+ const changeSequence: LevensteinDiff[] = levensteinDiff(originalVersion, editedVersion)
 
 /**
  * 1.b
  * Split the new version into substrings on the positions of all anchors (footnotes, etc)
  */
- const suggestionSubstrings: SuggestionWithAnchor[] = splitOnAnchors(editedVersion, anchors) 
+//  const suggestionSubstrings: SuggestionWithAnchor[] = splitOnAnchors(editedVersion, anchors) 
 
  /**
   * 2.a
   * Split the suggestion substrings into sequences of stringified tokens
   */
- const tokenizedSuggestionStrings: TokenizedSuggestionWithAnchor[] =  tokenizeSuggestionSubstrings(suggestionSubstrings)
+//  const tokenizedSuggestionStrings: TokenizedSuggestionWithAnchor[] =  tokenizeSuggestionSubstrings(suggestionSubstrings)
 
  /**
   * 3.a 
@@ -38,7 +38,16 @@ const {
   * rather than individual character changes.
   */
 
- const tokenChanges = mapTokenChanges(originalVersion, tokenizedSuggestionStrings, changeSequence)
+//  const tokenChanges = mapTokenChanges(originalVersion, tokenizedSuggestionStrings, changeSequence)
+
+/**
+ * 4.a
+ * Format the changes as suggestion messages and send to the main process
+ */
+changeSequence.forEach(change => {
+    const mesasge: SuggestionMessage = formatChangeAsMessage(change)
+    sendMessageToMainProcess(mesasge)
+});
 
 
 
