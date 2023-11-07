@@ -45,8 +45,8 @@ const {
  * Format the changes as suggestion messages and send to the main process
  */
 changeSequence.forEach(change => {
-    const mesasge: SuggestionMessage = formatChangeAsMessage(change)
-    sendMessageToMainProcess(mesasge)
+    const message: SuggestionMessage = formatChangeAsMessage(change)
+    sendMessageToMainProcess(message)
 });
 
 
