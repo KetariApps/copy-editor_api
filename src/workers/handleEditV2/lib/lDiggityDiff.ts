@@ -1,4 +1,4 @@
-import { Diff, Operation } from "./types";
+import { Diff } from "../types.js";
 
 export default function lDiggityDiff(a: string, b: string): Diff[] {
   const diffs: Diff[] = [];
@@ -31,7 +31,7 @@ export default function lDiggityDiff(a: string, b: string): Diff[] {
     } else if (dp[i][j] === dp[i - 1][j - 1] + 1) {
       diffs.push({
         new: b[j - 1],
-        operation: Operation.Replace,
+        operation: "replace",
         index: { old: i - 1, new: j - 1 },
       });
       i--;
@@ -39,14 +39,14 @@ export default function lDiggityDiff(a: string, b: string): Diff[] {
     } else if (dp[i][j] === dp[i - 1][j] + 1) {
       diffs.push({
         new: "",
-        operation: Operation.Delete,
+        operation: "delete",
         index: { old: i - 1, new: j - 1 },
       });
       i--;
     } else if (dp[i][j] === dp[i][j - 1] + 1) {
       diffs.push({
         new: b[j - 1],
-        operation: Operation.Insert,
+        operation: "insert",
         index: { old: i - 1, new: j - 1 },
       });
       j--;
@@ -57,7 +57,7 @@ export default function lDiggityDiff(a: string, b: string): Diff[] {
   while (i > 0) {
     diffs.push({
       new: "",
-      operation: Operation.Delete,
+      operation: "delete",
       index: { old: i - 1, new: j - 1 },
     });
     i--;
@@ -65,7 +65,7 @@ export default function lDiggityDiff(a: string, b: string): Diff[] {
   while (j > 0) {
     diffs.push({
       new: b[j - 1],
-      operation: Operation.Insert,
+      operation: "insert",
       index: { old: i - 1, new: j - 1 },
     });
     j--;

@@ -1,27 +1,9 @@
-import { Anchor } from "../../../lib/types.js";
 import { SuggestionWithAnchor } from "../types.js";
 
-export const splitStringOnAnchors = (
-  string: string,
-  anchors: Anchor[] | undefined
-) => {
-  if (anchors === undefined) {
-    return [{ content: string }];
-  }
-
-  // find the positions of the anchors in the content
-  const anchorPositions = anchors.map((anchor): [string, number] => {
-    const ref = `|${anchor.id}|`;
-    const index = string.indexOf(ref);
-    return [ref, index];
-  });
-
-  const substrings = splitStringAtPositions(string, anchorPositions);
-
-  return substrings;
-};
-
-function splitStringAtPositions(str: string, positions: [string, number][]) {
+export function splitStringAtPositions(
+  str: string,
+  positions: [string, number][]
+) {
   // Sort the positions array in ascending order
   positions.sort((a, b) => a[1] - b[1]);
 

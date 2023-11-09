@@ -1,8 +1,9 @@
 import { Anchor } from "../../lib/types.ts";
 
 export interface SuggestionMessage {
-  type: "insertion" | "replacement" | "deletion";
-  suggestion?: string | null;
+  type: "suggestion";
+  operation: Operation;
+  content?: string | null;
   ref: { substring: string; index: number };
   endingFootnote?: Footnote;
 }
@@ -31,11 +32,6 @@ export interface TokenizedSuggestionWithAnchor {
   anchor: Anchor;
 }
 
-export enum Operation {
-  "Insert",
-  "Delete",
-  "Replace",
-}
 export interface Diff {
   new: string;
   operation: Operation;
