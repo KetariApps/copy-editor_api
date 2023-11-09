@@ -1,7 +1,13 @@
 import { workerData } from "worker_threads";
 import sendMessageToMainProcess from "../lib/sendMessageToMainProcess.js";
-import { HandleEditWorkerData, Diff, SuggestionMessage } from "./types.js";
-import lDiggityDiff from "./lib/lDiggity.js";
+import {
+  HandleEditWorkerData,
+  Diff,
+  SuggestionMessage,
+  SuggestionWithAnchor,
+} from "./types.js";
+import lDiggityDiff from "./lib/lDiggityDiff.js";
+import { splitStringOnAnchors } from "./lib/splitStringOnAnchors.js";
 
 const {
   originalVersion,
@@ -20,7 +26,10 @@ const changeSequence: Diff[] = lDiggityDiff(originalVersion, editedVersion);
  * 1.b
  * Split the new version into substrings on the positions of all anchors (footnotes, etc)
  */
-//  const suggestionSubstrings: SuggestionWithAnchor[] = splitOnAnchors(editedVersion, anchors)
+const suggestionSubstrings: SuggestionWithAnchor[] = splitStringOnAnchors(
+  editedVersion,
+  anchors
+);
 
 /**
  * 2.a

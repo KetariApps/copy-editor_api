@@ -20,7 +20,7 @@ export interface HandleEditWorkerData {
 export type Operation = "insert" | "delete" | "replace";
 export interface SuggestionWithAnchor {
   content: string;
-  anchor: Anchor;
+  anchor?: [string, number];
 }
 export interface Token {
   string: string;
