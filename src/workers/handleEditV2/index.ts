@@ -1,11 +1,7 @@
 import { workerData } from "worker_threads";
-import { encode } from "gpt-3-encoder";
-import findSubstringIndices from "./findSubstringIndicies.js";
-import splitStringAtPositions from "./splitStringAtPositions.js";
-import removeSubstrings from "./removeSubstrings.js";
 import sendMessageToMainProcess from "../lib/sendMessageToMainProcess.js";
-import diff from "./diff.js";
-import { HandleEditWorkerData, LevensteinDiff, SuggestionMessage, SuggestionWithAnchor, TokenizedSuggestionWithAnchor } from "./types.js";
+import { HandleEditWorkerData, Diff, SuggestionMessage } from "./types.js";
+import lDiggityDiff from "./lib/lDiggity.js";
 
 const {
   originalVersion,
@@ -18,25 +14,25 @@ const {
  * 1.a
  * Get the set of minimal changes required to transform the original version to the edited version
  */
- const changeSequence: LevensteinDiff[] = levensteinDiff(originalVersion, editedVersion)
+const changeSequence: Diff[] = lDiggityDiff(originalVersion, editedVersion);
 
 /**
  * 1.b
  * Split the new version into substrings on the positions of all anchors (footnotes, etc)
  */
-//  const suggestionSubstrings: SuggestionWithAnchor[] = splitOnAnchors(editedVersion, anchors) 
+//  const suggestionSubstrings: SuggestionWithAnchor[] = splitOnAnchors(editedVersion, anchors)
 
- /**
-  * 2.a
-  * Split the suggestion substrings into sequences of stringified tokens
-  */
+/**
+ * 2.a
+ * Split the suggestion substrings into sequences of stringified tokens
+ */
 //  const tokenizedSuggestionStrings: TokenizedSuggestionWithAnchor[] =  tokenizeSuggestionSubstrings(suggestionSubstrings)
 
- /**
-  * 3.a 
-  * Map the changes in the change sequence to the tokenized suggestions so that the user receives changes as tokens 
-  * rather than individual character changes.
-  */
+/**
+ * 3.a
+ * Map the changes in the change sequence to the tokenized suggestions so that the user receives changes as tokens
+ * rather than individual character changes.
+ */
 
 //  const tokenChanges = mapTokenChanges(originalVersion, tokenizedSuggestionStrings, changeSequence)
 
@@ -44,11 +40,9 @@ const {
  * 4.a
  * Format the changes as suggestion messages and send to the main process
  */
-changeSequence.forEach(change => {
-    const message: SuggestionMessage = formatChangeAsMessage(change)
-    sendMessageToMainProcess(message)
+changeSequence.forEach((change) => {
+  const message: SuggestionMessage = formatChangeAsMessage(change);
+  sendMessageToMainProcess(message);
 });
-
-
 
 sendMessageToMainProcess({ type: "done", workerId });
