@@ -4,10 +4,8 @@ import {
   HandleEditWorkerData,
   Diff,
   SuggestionMessage,
-  SuggestionWithAnchor,
 } from "./types.js";
 import lDiggityDiff from "./lib/lDiggityDiff.js";
-import { splitStringAtPositions } from "./lib/splitStringAtPositions.js";
 import removeSubstrings from "../handleEdit/removeSubstrings.js";
 import { groupSequentialDiffs } from "./lib/groupSequentialDiffs.js";
 
