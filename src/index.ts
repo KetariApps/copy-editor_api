@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 import { Worker } from "worker_threads";
 import { v4 as uuid } from "uuid";
-import { DoneMessage, WorkerMessage } from "./workers/lib/types.js";
+import { DoneMessage } from "./workers/lib/types.js";
 import buildSSEResponse from "./lib/buildSSEResponse.js";
 import {
   CommentMessage,
@@ -12,14 +12,13 @@ import {
 import {
   HandleEditWorkerData,
   SuggestionMessage,
-} from "./workers/handleEdit/types.js";
+} from "./workers/handleEditV2//types.js";
 import { RequestEditWorkerData } from "./workers/requestEdit/types.js";
 import EditStream from "./lib/editStream.js";
 import {
   EditRequest,
   StreamMap,
   StreamMessage,
-  StreamStatus,
   WorkerMap,
   WorkerRole,
 } from "./lib/types.js";
@@ -95,7 +94,7 @@ app.get("/sse", (req: Request, res: Response) => {
             ...message,
           };
           const handleEditWorker = new Worker(
-            "./build/workers/handleEdit/index.js",
+            "./build/workers/handleEditV2/index.js",
             {
               workerData: handleEditsWorkerData,
             }

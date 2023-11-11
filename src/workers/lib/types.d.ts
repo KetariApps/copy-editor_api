@@ -1,6 +1,6 @@
-import { CommentMessage } from "../generateComments/types.js";
-import { SuggestionMessage } from "../requestEdit/types.js";
-import { EditResponseMessage } from "../types.js";
+import { CommentMessage } from "../generateComments/types.ts";
+import { SuggestionMessage } from "../handleEditV2/types.ts";
+import { EditResponseMessage } from "../types.ts";
 
 export interface DoneMessage {
   type: "done";
