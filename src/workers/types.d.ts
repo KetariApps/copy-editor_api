@@ -1,9 +1,7 @@
-import { Footnote } from "../types.js";
-
-interface EditResponseMessage {
+export interface EditResponseMessage {
   type: "edit";
   originalVersion: string;
   editedVersion: string;
-  footnotes?: Footnote[] | undefined;
+  footnotes?: Anchor[] | undefined;
   shouldGenerateComments: boolean;
 }

@@ -5,7 +5,7 @@ export interface SuggestionMessage {
   operation: Operation;
   content?: string | null;
   ref: { substring: string; index: number };
-  endingFootnote?: Footnote;
+  endingFootnote?: Anchor;
 }
 export interface SequentialChange {
   comparisonIndex: number;

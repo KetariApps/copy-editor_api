@@ -12,7 +12,7 @@ import {
 import {
   HandleEditWorkerData,
   SuggestionMessage,
-} from "./workers/handleEdit/types.js";
+} from "./workers/handleEditV2//types.js";
 import { RequestEditWorkerData } from "./workers/requestEdit/types.js";
 import EditStream from "./lib/editStream.js";
 import {

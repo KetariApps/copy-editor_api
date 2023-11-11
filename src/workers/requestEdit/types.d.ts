@@ -1,8 +1,8 @@
-import { Footnote } from "../../lib/types.ts";
+import { Anchor } from "../../lib/types.ts";
 
 export interface RequestEditWorkerData {
   content: string;
-  footnotes?: Footnote[];
+  footnotes?: Anchor[];
   shouldGenerateComments: boolean;
   workerId: string;
 }

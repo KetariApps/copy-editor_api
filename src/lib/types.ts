@@ -1,7 +1,7 @@
 import { Worker } from "worker_threads";
 import EditStream from "./editStream.js";
 import { CommentMessage } from "../workers/generateComments/types.js";
-import { SuggestionMessage } from "../workers/handleEdit/types.js";
+import { SuggestionMessage } from "../workers/handleEditV2//types.js";
 import { EditResponseMessage } from "../workers/types.js";
 
 export enum WorkerRole {
