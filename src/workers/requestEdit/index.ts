@@ -1,12 +1,12 @@
 import { workerData } from "worker_threads";
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
 import * as dotenv from "dotenv";
-import { RequestEditWorkerData } from "./types.js";
 import processOriginalText from "./processOriginalText.js";
 import copyEditorMessages from "../../lib/prompts/copyEditorMessages/index.js";
 import makeRequestEditsMessage from "../../lib/prompts/makeRequestEditsMessage.js";
 import { EditResponseMessage } from "../types.js";
 import sendMessageToMainProcess from "../lib/sendMessageToMainProcess.js";
+import { RequestEditWorkerData } from "./types.js";
 
 //// env stuff
 dotenv.config();

@@ -6,7 +6,7 @@ import {
   SuggestionMessage,
 } from "./types.js";
 import lDiggityDiff from "./lib/lDiggityDiff.js";
-import removeSubstrings from "../handleEditV2/lib/removeSubstrings.ts";
+import removeSubstrings from "./lib/removeSubstrings.js";
 import { groupSequentialDiffs } from "./lib/groupSequentialDiffs.js";
 
 const {
