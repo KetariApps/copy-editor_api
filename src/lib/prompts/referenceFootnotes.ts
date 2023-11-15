@@ -2,7 +2,7 @@ import {
   ChatCompletionRequestMessage,
   ChatCompletionRequestMessageRoleEnum,
 } from "openai";
-import { Anchor } from "../types.ts";
+import { Anchor } from "../types.js";
 
 export default function referenceFootnotes(footnotes: Anchor[]) {
   const footnoteLibrary = footnotes.map(({ body, id }) => `${id}:\n\n${body}`);

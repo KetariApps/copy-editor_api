@@ -1,12 +1,8 @@
 import { workerData } from "worker_threads";
 import sendMessageToMainProcess from "../lib/sendMessageToMainProcess.js";
-import {
-  HandleEditWorkerData,
-  Diff,
-  SuggestionMessage,
-} from "./types.js";
+import { HandleEditWorkerData, Diff, SuggestionMessage } from "./types.js";
 import lDiggityDiff from "./lib/lDiggityDiff.js";
-import removeSubstrings from "../handleEditV2/lib/removeSubstrings.ts";
+import removeSubstrings from "./lib/removeSubstrings.js";
 import { groupSequentialDiffs } from "./lib/groupSequentialDiffs.js";
 
 const {
@@ -78,7 +74,8 @@ groupedSequentialDiffs.forEach((diffSequence) => {
      */
     refSubstring = originalWithoutAnchorRefs.slice(
       refIndex,
-      diffSequence.filter(({ operation }) => operation !== "insert").length
+      refIndex +
+        diffSequence.filter(({ operation }) => operation !== "insert").length
     );
     if (diffSequence.every(({ operation }) => operation === "delete")) {
       operation = "delete";

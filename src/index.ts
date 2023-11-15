@@ -9,11 +9,6 @@ import {
   CommentMessage,
   GenerateCommentsWorkerData,
 } from "./workers/generateComments/types.js";
-import {
-  HandleEditWorkerData,
-  SuggestionMessage,
-} from "./workers/handleEditV2//types.js";
-import { RequestEditWorkerData } from "./workers/requestEdit/types.js";
 import EditStream from "./lib/editStream.js";
 import {
   EditRequest,
@@ -22,6 +17,8 @@ import {
   WorkerMap,
   WorkerRole,
 } from "./lib/types.js";
+import { HandleEditWorkerData, SuggestionMessage } from "./workers/handleEditV2/types.js";
+import { RequestEditWorkerData } from "./workers/requestEdit/types.js";
 
 //// env stuff
 dotenv.config();
