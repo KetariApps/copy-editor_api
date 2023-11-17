@@ -62,7 +62,7 @@ groupedSequentialDiffs.forEach((diffSequence) => {
      */
     refSubstring = originalWithoutAnchorRefs.slice(
       refIndex,
-      diffSequence[0].index.old
+      diffSequence[0].index.old + 1
     );
     content = diffSequence.map((diff) => diff.new).join("");
   } else {
