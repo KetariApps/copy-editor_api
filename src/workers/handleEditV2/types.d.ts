@@ -33,7 +33,7 @@ export interface TokenizedSuggestionWithAnchor {
 }
 
 export interface Diff {
-  new: string;
+  change: string;
   operation: Operation;
-  index: { old: number; new: number };
+  index: { old: number; change: number };
 }

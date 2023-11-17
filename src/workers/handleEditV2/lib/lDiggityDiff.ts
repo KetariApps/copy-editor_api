@@ -30,24 +30,24 @@ export default function lDiggityDiff(a: string, b: string): Diff[] {
       j--;
     } else if (dp[i][j] === dp[i - 1][j - 1] + 1) {
       diffs.push({
-        new: b[j - 1],
+        change: b[j - 1],
         operation: "replace",
-        index: { old: i - 1, new: j - 1 },
+        index: { old: i - 1, change: j - 1 },
       });
       i--;
       j--;
     } else if (dp[i][j] === dp[i - 1][j] + 1) {
       diffs.push({
-        new: "",
+        change: "",
         operation: "delete",
-        index: { old: i - 1, new: j - 1 },
+        index: { old: i - 1, change: j - 1 },
       });
       i--;
     } else if (dp[i][j] === dp[i][j - 1] + 1) {
       diffs.push({
-        new: b[j - 1],
+        change: b[j - 1],
         operation: "insert",
-        index: { old: i - 1, new: j - 1 },
+        index: { old: i - 1, change: j - 1 },
       });
       j--;
     }
@@ -56,17 +56,17 @@ export default function lDiggityDiff(a: string, b: string): Diff[] {
   // Take care of the remaining operations
   while (i > 0) {
     diffs.push({
-      new: "",
+      change: "",
       operation: "delete",
-      index: { old: i - 1, new: j - 1 },
+      index: { old: i - 1, change: j - 1 },
     });
     i--;
   }
   while (j > 0) {
     diffs.push({
-      new: b[j - 1],
+      change: b[j - 1],
       operation: "insert",
-      index: { old: i - 1, new: j - 1 },
+      index: { old: i - 1, change: j - 1 },
     });
     j--;
   }

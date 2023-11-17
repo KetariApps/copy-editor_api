@@ -21,11 +21,11 @@ export const groupSequentialDiffs = (
 
       // Are the diff positions sequential?
       const sequentialIndices =
-        Math.abs(lastDiff.index.new - currentDiff.index.new) === 1;
+        Math.abs(lastDiff.index.change - currentDiff.index.change) === 1;
 
       // Is this diff at a boundary position?
       const boundaryPosition = boundaries?.find(
-        (bound) => bound[1] === currentDiff.index.new
+        (bound) => bound[1] === currentDiff.index.change
       );
 
       if (likeOperations && sequentialIndices && !boundaryPosition) {
