@@ -72,11 +72,13 @@ groupedSequentialDiffs.forEach((diffSequence) => {
      * Ref.substring should allow word.search match the entire string that should be replaced
      * Slice from refIndex to the number of non-insertion operations that should be performed
      */
+
     refSubstring = originalWithoutAnchorRefs.slice(
       refIndex,
       refIndex +
         diffSequence.filter(({ operation }) => operation !== "insert").length
     );
+
     if (diffSequence.every(({ operation }) => operation === "delete")) {
       operation = "delete";
       content = null;
