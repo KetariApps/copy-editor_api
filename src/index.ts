@@ -120,8 +120,8 @@ app.get("/sse", (req: Request, res: Response) => {
             suggestions,
           };
 
-          stream.write(batchSuggestionMessage);
-          anticipateComments === false && res.end();
+           stream.write(batchSuggestionMessage);
+          // anticipateComments === false && res.end();
 
           // const handleEditsWorkerWorkerId = uuid();
           // const handleEditsWorkerData: HandleEditWorkerData = {
