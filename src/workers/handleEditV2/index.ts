@@ -18,6 +18,7 @@ const originalWithoutAnchorRefs = anchors
       anchors.map(({ id }) => `|${id}|`)
     )
   : originalVersion;
+
 /**
  * 1.a
  * Get the set of minimal changes required to transform the original version to the edited version
@@ -26,6 +27,7 @@ const changeSequence: Diff[] = lDiggityDiff(
   originalWithoutAnchorRefs,
   editedVersion
 );
+
 
 changeSequence.forEach(({ change, operation, index }) => {
   const message: SuggestionMessage = {

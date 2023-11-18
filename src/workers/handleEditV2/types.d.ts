@@ -7,6 +7,12 @@ export interface SuggestionMessage {
   ref: { substring: string; index: number };
   endingFootnote?: Anchor;
 }
+
+export interface BatchSuggestionMessage {
+  type: "batch-suggestion";
+  suggestions: SuggestionMessage[];
+}
+
 export interface SequentialChange {
   comparisonIndex: number;
   token: number;

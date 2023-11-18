@@ -17,8 +17,15 @@ import {
   WorkerMap,
   WorkerRole,
 } from "./lib/types.js";
-import { HandleEditWorkerData, SuggestionMessage } from "./workers/handleEditV2/types.js";
+import {
+  BatchSuggestionMessage,
+  Diff,
+  HandleEditWorkerData,
+  SuggestionMessage,
+} from "./workers/handleEditV2/types.js";
 import { RequestEditWorkerData } from "./workers/requestEdit/types.js";
+import removeSubstrings from "./workers/handleEditV2/lib/removeSubstrings.js";
+import lDiggityDiff from "./workers/handleEditV2/lib/lDiggityDiff.js";
 
 //// env stuff
 dotenv.config();
@@ -85,31 +92,62 @@ app.get("/sse", (req: Request, res: Response) => {
             );
           }
 
-          const handleEditsWorkerWorkerId = uuid();
-          const handleEditsWorkerData: HandleEditWorkerData = {
-            workerId: handleEditsWorkerWorkerId,
-            ...message,
+          const originalWithoutAnchorRefs = message.footnotes
+            ? removeSubstrings(
+                message.originalVersion,
+                message.footnotes.map(({ id }) => `|${id}|`)
+              )
+            : message.originalVersion;
+          const changeSequence: Diff[] = lDiggityDiff(
+            originalWithoutAnchorRefs,
+            message.editedVersion
+          );
+
+          const suggestions = changeSequence.map(
+            ({ change, operation, index }): SuggestionMessage => ({
+              type: "suggestion",
+              operation,
+              content: change,
+              ref: {
+                index: index.old,
+                substring: originalWithoutAnchorRefs[index.old],
+              },
+            })
+          );
+
+          const batchSuggestionMessage: BatchSuggestionMessage = {
+            type: "batch-suggestion",
+            suggestions,
           };
-          const handleEditWorker = new Worker(
-            "./build/workers/handleEditV2/index.js",
-            {
-              workerData: handleEditsWorkerData,
-            }
-          );
-          workers.set(handleEditsWorkerWorkerId, [
-            handleEditWorker,
-            WorkerRole.EditHandler,
-          ]);
-          handleEditWorker.on(
-            "message",
-            (message: SuggestionMessage | DoneMessage) => {
-              if (message.type === "suggestion") {
-                stream.write(message);
-              } else {
-                anticipateComments === false && res.end();
-              }
-            }
-          );
+
+          stream.write(batchSuggestionMessage);
+          anticipateComments === false && res.end();
+
+          // const handleEditsWorkerWorkerId = uuid();
+          // const handleEditsWorkerData: HandleEditWorkerData = {
+          //   workerId: handleEditsWorkerWorkerId,
+          //   ...message,
+          // };
+          // const handleEditWorker = new Worker(
+          //   "./build/workers/handleEditV2/index.js",
+          //   {
+          //     workerData: handleEditsWorkerData,
+          //   }
+          // );
+          // workers.set(handleEditsWorkerWorkerId, [
+          //   handleEditWorker,
+          //   WorkerRole.EditHandler,
+          // ]);
+          // handleEditWorker.on(
+          //   "message",
+          //   (message: SuggestionMessage | DoneMessage) => {
+          //     if (message.type === "suggestion") {
+          //       stream.write(message);
+          //     } else {
+          //       anticipateComments === false && res.end();
+          //     }
+          //   }
+          // );
         } else {
           // message comes from either comments worker or edit worker - either of those responses stream back to the user
           const userResponse = buildSSEResponse(message);
