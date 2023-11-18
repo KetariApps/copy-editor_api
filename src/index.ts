@@ -50,7 +50,6 @@ const workers: WorkerMap = new Map();
 app.get("/sse", (req: Request, res: Response) => {
   try {
     const streamId = req.query.streamId as string;
-    let anticipateComments = false;
 
     //
     const stream = streams.get(streamId);
@@ -64,7 +63,7 @@ app.get("/sse", (req: Request, res: Response) => {
 
         if (message.type === "edit") {
           if (message.shouldGenerateComments === true) {
-            anticipateComments = true;
+            message.shouldGenerateComments = true;
             const generateCommentsWorkerId = uuid();
             const generateCommentsWorkerData: GenerateCommentsWorkerData = {
               workerId: generateCommentsWorkerId,
@@ -120,8 +119,9 @@ app.get("/sse", (req: Request, res: Response) => {
             suggestions,
           };
 
-           stream.write(batchSuggestionMessage);
-          // anticipateComments === false && res.end();
+          stream.write(batchSuggestionMessage);
+
+          message.shouldGenerateComments === false && res.end();
 
           // const handleEditsWorkerWorkerId = uuid();
           // const handleEditsWorkerData: HandleEditWorkerData = {
