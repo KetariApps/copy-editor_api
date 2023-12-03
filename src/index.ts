@@ -86,6 +86,7 @@ app.get("/sse", (req: Request, res: Response) => {
                   stream.write(message);
                 } else {
                   res.end();
+                  stream.end();
                 }
               }
             );
@@ -119,9 +120,10 @@ app.get("/sse", (req: Request, res: Response) => {
             suggestions,
           };
 
-          stream.write(batchSuggestionMessage);
+          res.write(batchSuggestionMessage);
 
           message.shouldGenerateComments === false && res.end();
+          stream.end();
 
           // const handleEditsWorkerWorkerId = uuid();
           // const handleEditsWorkerData: HandleEditWorkerData = {
@@ -149,7 +151,7 @@ app.get("/sse", (req: Request, res: Response) => {
           //   }
           // );
         } else {
-          // message comes from either comments worker or edit worker - either of those responses stream back to the user
+          // message comes from comments worker - write to the user
           const userResponse = buildSSEResponse(message);
           console.log(userResponse);
           res.write(`data: ${userResponse}\n\n`);
