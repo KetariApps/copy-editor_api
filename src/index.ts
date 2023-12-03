@@ -103,21 +103,20 @@ app.get("/sse", (req: Request, res: Response) => {
             message.editedVersion
           );
 
-          const suggestions = changeSequence.map(
-            ({ change, operation, index }): SuggestionMessage => ({
-              type: "suggestion",
-              operation,
-              content: change,
-              ref: {
-                index: index.old,
-                substring: originalWithoutAnchorRefs[index.old],
-              },
-            })
-          );
 
           const batchSuggestionMessage: BatchSuggestionMessage = {
             type: "batch-suggestion",
-            suggestions,
+            suggestions: changeSequence.map(
+              ({ change, operation, index }): SuggestionMessage => ({
+                type: "suggestion",
+                operation,
+                content: change,
+                ref: {
+                  index: index.old,
+                  substring: originalWithoutAnchorRefs[index.old],
+                },
+              })
+            ),
           };
 
           res.write(batchSuggestionMessage);
