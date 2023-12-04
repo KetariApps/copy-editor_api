@@ -103,7 +103,6 @@ app.get("/sse", (req: Request, res: Response) => {
             message.editedVersion
           );
 
-
           const batchSuggestionMessage: BatchSuggestionMessage = {
             type: "batch-suggestion",
             suggestions: changeSequence.map(
@@ -119,7 +118,9 @@ app.get("/sse", (req: Request, res: Response) => {
             ),
           };
 
-          res.write(batchSuggestionMessage);
+          const userResponse = buildSSEResponse(batchSuggestionMessage);
+          console.log(userResponse);
+          res.write(JSON.stringify(userResponse));
 
           message.shouldGenerateComments === false && res.end();
           stream.end();
