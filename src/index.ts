@@ -120,7 +120,7 @@ app.get("/sse", (req: Request, res: Response) => {
 
           const userResponse = buildSSEResponse(batchSuggestionMessage);
           console.log(userResponse);
-          res.write(JSON.stringify(userResponse));
+          res.write(`data: ${userResponse}\n\n`);
 
           message.shouldGenerateComments === false && res.end();
           stream.end();
