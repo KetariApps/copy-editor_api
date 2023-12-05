@@ -2,7 +2,10 @@ import { Worker } from "worker_threads";
 import EditStream from "./editStream.js";
 import { CommentMessage } from "../workers/generateComments/types.js";
 import { EditResponseMessage } from "../workers/types.js";
-import { BatchSuggestionMessage, SuggestionMessage } from "../workers/handleEditV2/types.js";
+import {
+  BatchSuggestionMessage,
+  SuggestionMessage,
+} from "../workers/handleEditV2/types.js";
 
 export enum WorkerRole {
   "EditGetter",
@@ -28,7 +31,6 @@ export interface EditRequest {
   footnotes: Anchor[];
   shouldGenerateComments: boolean;
 }
-export type PartialMessage = SuggestionMessage | CommentMessage | EditRequest | BatchSuggestionMessage;
 
 export type StreamMessage =
   | EditResponseMessage

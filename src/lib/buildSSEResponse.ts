@@ -1,6 +1,8 @@
-import { PartialMessage } from "./types.js";
+import { CommentMessage } from "../workers/generateComments/types.js";
+import { BatchSuggestionMessage, SuggestionMessage } from "../workers/handleEditV2/types.js";
+import { EditRequest } from "./types.js";
 
-const buildSSEResponse = (partialMessage: PartialMessage) => {
+const buildSSEResponse = (partialMessage: SuggestionMessage | CommentMessage | EditRequest | BatchSuggestionMessage) => {
   const completeResponse = JSON.stringify({
     ...partialMessage,
     timestamp: Date.now(),
