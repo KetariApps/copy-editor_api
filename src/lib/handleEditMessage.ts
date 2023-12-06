@@ -25,10 +25,10 @@ export const handleEditMessage = (
       )
     : message.editedVersion;
 
-  const anchorPositions = message.footnotes?.map((anchor) => {
-    const ref = `|${anchor.id}|`;
+  const anchorPositions = message.footnotes?.map((anchor): [string, number] => {
+    const ref = anchor.id;
     const index = message.editedVersion.indexOf(ref);
-    return index;
+    return [ref, index];
   });
 
   const diffSequence = lDiggityDiff(
@@ -37,14 +37,31 @@ export const handleEditMessage = (
   );
 
   const chunkedDiffs = anchorPositions
-    ? chunkArrayAtIndices(diffSequence, anchorPositions)
+    ? chunkArrayAtIndices(
+        diffSequence,
+        anchorPositions.map((anchor) => anchor[1])
+      )
     : [diffSequence];
 
   console.log(anchorPositions, chunkedDiffs.length);
 
-  const suggestions = chunkedDiffs.flatMap((chunk) =>
+  const suggestions = chunkedDiffs.flatMap((chunk, i) =>
     groupSuggestions(
-      chunk.map((diff) => diffToSuggestion(diff, originalWithoutAnchorRefs))
+      chunk.map((diff, j) => {
+        let suggestion = diffToSuggestion(diff, originalWithoutAnchorRefs);
+
+        // add the anchor to the last suggestion of this group if an should exist at that position
+        if (anchorPositions && j === chunk.length - 1) {
+          suggestion = {
+            ...suggestion,
+            endingFootnote: message.footnotes?.find(
+              ({ id }) => id === anchorPositions[i][0]
+            ),
+          };
+        }
+
+        return suggestion;
+      })
     )
   );
 
