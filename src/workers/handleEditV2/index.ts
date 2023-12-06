@@ -1,8 +1,8 @@
 import { workerData } from "worker_threads";
 import sendMessageToMainProcess from "../lib/sendMessageToMainProcess.js";
-import { HandleEditWorkerData, Diff, SuggestionMessage } from "./types.js";
-import lDiggityDiff from "./lib/lDiggityDiff.js";
-import removeSubstrings from "./lib/removeSubstrings.js";
+import lDiggityDiff from "../../lib/lDiggityDiff.js";
+import removeSubstrings from "../../lib/removeSubstrings.js";
+import { Diff, HandleEditWorkerData, SuggestionMessage } from "../types.js";
 // import { groupSequentialDiffs } from "./lib/groupSequentialDiffs.js";
 
 const {
@@ -27,7 +27,6 @@ const changeSequence: Diff[] = lDiggityDiff(
   originalWithoutAnchorRefs,
   editedVersion
 );
-
 
 changeSequence.forEach(({ change, operation, index }) => {
   const message: SuggestionMessage = {
