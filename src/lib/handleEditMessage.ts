@@ -4,6 +4,7 @@ import {
 } from "../workers/types.js";
 import { chunkArrayAtIndices } from "./chunkArrayAtIndices.js";
 import { diffToSuggestion } from "./diffToSuggestion.js";
+import { groupSuggestions } from "./groupSequentialDiffs.js";
 import lDiggityDiff from "./lDiggityDiff.js";
 import removeSubstrings from "./removeSubstrings.js";
 
@@ -38,11 +39,13 @@ export const handleEditMessage = (
   const chunkedDiffs = anchorPositions
     ? chunkArrayAtIndices(diffSequence, anchorPositions)
     : [diffSequence];
-    
+
   console.log(anchorPositions, chunkedDiffs.length);
 
   const suggestions = chunkedDiffs.flatMap((chunk) =>
-    chunk.map((diff) => diffToSuggestion(diff, originalWithoutAnchorRefs))
+    groupSuggestions(
+      chunk.map((diff) => diffToSuggestion(diff, originalWithoutAnchorRefs))
+    )
   );
 
   return {
