@@ -38,6 +38,8 @@ export const handleEditMessage = (
   const chunkedDiffs = anchorPositions
     ? chunkArrayAtIndices(diffSequence, anchorPositions)
     : [diffSequence];
+    
+  console.log(anchorPositions, chunkedDiffs.length);
 
   const suggestions = chunkedDiffs.flatMap((chunk) =>
     chunk.map((diff) => diffToSuggestion(diff, originalWithoutAnchorRefs))
