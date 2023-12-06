@@ -1,4 +1,4 @@
-import { SuggestionWithAnchor } from "../types.js";
+import { SuggestionWithAnchor } from "../workers/types.js";
 
 export function splitStringAtPositions(
   str: string,

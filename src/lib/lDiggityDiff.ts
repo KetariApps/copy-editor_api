@@ -1,4 +1,4 @@
-import { Diff } from "../types.js";
+import { Diff } from "../workers/types.js";
 
 export default function lDiggityDiff(a: string, b: string): Diff[] {
   const diffs: Diff[] = [];

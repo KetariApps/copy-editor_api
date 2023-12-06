@@ -10,6 +10,12 @@ import {
   GenerateCommentsWorkerData,
 } from "./workers/generateComments/types.js";
 import EditStream from "./lib/editStream.js";
+import { RequestEditWorkerData } from "./workers/requestEdit/types.js";
+import removeSubstrings from "./lib/removeSubstrings.js";
+import lDiggityDiff from "./lib/lDiggityDiff.js";
+import { diffToSuggestion } from "./lib/diffToSuggestion.js";
+import { chunkArrayAtIndices } from "./lib/chunkArrayAtIndices.js";
+import { BatchSuggestionMessage, Diff } from "./workers/types.js";
 import {
   EditRequest,
   StreamMap,
@@ -17,15 +23,7 @@ import {
   WorkerMap,
   WorkerRole,
 } from "./lib/types.js";
-import {
-  BatchSuggestionMessage,
-  Diff,
-  HandleEditWorkerData,
-  SuggestionMessage,
-} from "./workers/handleEditV2/types.js";
-import { RequestEditWorkerData } from "./workers/requestEdit/types.js";
-import removeSubstrings from "./workers/handleEditV2/lib/removeSubstrings.js";
-import lDiggityDiff from "./workers/handleEditV2/lib/lDiggityDiff.js";
+import { handleEditMessage } from "./lib/handleEditMessage.js";
 
 //// env stuff
 dotenv.config();
@@ -92,31 +90,7 @@ app.get("/sse", (req: Request, res: Response) => {
             );
           }
 
-          const originalWithoutAnchorRefs = message.footnotes
-            ? removeSubstrings(
-                message.originalVersion,
-                message.footnotes.map(({ id }) => `|${id}|`)
-              )
-            : message.originalVersion;
-          const changeSequence: Diff[] = lDiggityDiff(
-            originalWithoutAnchorRefs,
-            message.editedVersion
-          );
-
-          const batchSuggestionMessage: BatchSuggestionMessage = {
-            type: "batch-suggestion",
-            suggestions: changeSequence.map(
-              ({ change, operation, index }): SuggestionMessage => ({
-                type: "suggestion",
-                operation,
-                content: change,
-                ref: {
-                  index: index.old,
-                  substring: originalWithoutAnchorRefs[index.old],
-                },
-              })
-            ),
-          };
+          const batchSuggestionMessage = handleEditMessage(message);
 
           const userResponse = buildSSEResponse(batchSuggestionMessage);
           console.log(userResponse);
@@ -124,32 +98,6 @@ app.get("/sse", (req: Request, res: Response) => {
 
           message.shouldGenerateComments === false && res.end();
           stream.end();
-
-          // const handleEditsWorkerWorkerId = uuid();
-          // const handleEditsWorkerData: HandleEditWorkerData = {
-          //   workerId: handleEditsWorkerWorkerId,
-          //   ...message,
-          // };
-          // const handleEditWorker = new Worker(
-          //   "./build/workers/handleEditV2/index.js",
-          //   {
-          //     workerData: handleEditsWorkerData,
-          //   }
-          // );
-          // workers.set(handleEditsWorkerWorkerId, [
-          //   handleEditWorker,
-          //   WorkerRole.EditHandler,
-          // ]);
-          // handleEditWorker.on(
-          //   "message",
-          //   (message: SuggestionMessage | DoneMessage) => {
-          //     if (message.type === "suggestion") {
-          //       stream.write(message);
-          //     } else {
-          //       anticipateComments === false && res.end();
-          //     }
-          //   }
-          // );
         } else {
           // message comes from comments worker - write to the user
           const userResponse = buildSSEResponse(message);

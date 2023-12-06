@@ -1,5 +1,5 @@
 import { CommentMessage } from "../workers/generateComments/types.js";
-import { BatchSuggestionMessage, SuggestionMessage } from "../workers/handleEditV2/types.js";
+import { BatchSuggestionMessage, SuggestionMessage } from "../workers/types.js";
 import { EditRequest } from "./types.js";
 
 const buildSSEResponse = (partialMessage: SuggestionMessage | CommentMessage | EditRequest | BatchSuggestionMessage) => {
